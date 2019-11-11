@@ -24,4 +24,3 @@ Vector2 lerpVector2(Vector2 a, Vector2 b, double t) {
   print(a.toString() + b.toString() + t.toString());
   return Vector2(lerpDouble(a.x, b.x, t), lerpDouble(a.y, b.y, t));
 }
-

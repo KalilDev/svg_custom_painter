@@ -63,7 +63,7 @@ class NumberComponent extends PathComponent {
     if (other is int) {
       if (shouldAddNew) {
         numberRepresentation.add(other);
-      shouldAddNew = false;
+        shouldAddNew = false;
       } else {
         final int currentNum =
             numberRepresentation[numberRepresentation.length - 1];
@@ -82,5 +82,5 @@ class DoubleComponent extends PathComponent {
 class IntComponent extends PathComponent {
   IntComponent(this._i);
   final int _i;
-  double get i => 0.0+_i;
+  double get i => 0.0 + _i;
 }

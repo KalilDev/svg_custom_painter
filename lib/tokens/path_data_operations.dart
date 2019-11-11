@@ -1,5 +1,6 @@
 import 'package:vector_math/vector_math_64.dart';
 import '../utils.dart';
+
 const Map<String, Type> charTypeMap = {
   'm': Move,
   'z': Close,
