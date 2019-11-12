@@ -14,7 +14,7 @@ class PathData {
     List<PathOperation> lerp = [];
     for (int i = 0; i < a.operations.length; i++) {
       final PathOperation o1 = a.operations[i];
-      final PathOperation o2 = a.operations[i];
+      final PathOperation o2 = b.operations[i];
       PathOperation result;
       assert(o1.runtimeType == o2.runtimeType);
       switch (o1.runtimeType) {

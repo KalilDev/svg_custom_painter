@@ -21,6 +21,5 @@ Vector2 lerpVector2(Vector2 a, Vector2 b, double t) {
   assert(a != null);
   assert(b != null);
   assert(t != null);
-  print(a.toString() + b.toString() + t.toString());
   return Vector2(lerpDouble(a.x, b.x, t), lerpDouble(a.y, b.y, t));
 }
