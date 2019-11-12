@@ -12,6 +12,7 @@ abstract class RenderingNode {
   Vector2 currentPos;
   Vector2 lastControlPoint;
   void renderOp(PathOperation op) {
+    print(op.runtimeType);
     switch (op.runtimeType) {
       case Move: renderMove(op);break;
       case Close: renderClose();break;
@@ -25,17 +26,17 @@ abstract class RenderingNode {
   }
 
   CubicBezier calcSmoothCubic(SmoothCubicBezier s) {
-  return CubicBezier(alias: s.alias, control1: reflectControlPoint(s.control2, currentPos),control2: s.control2, end: s.point)
+  return CubicBezier(alias: s.alias, control1: reflectControlPoint(s.control2, currentPos),control2: s.control2, end: s.point);
   }
 
   QuadraticBezier calcSmoothQuad(SmoothQuadraticBezier s) {
   return QuadraticBezier(alias: s.alias,end: s.point,control: reflectControlPoint(lastControlPoint, currentPos));
   }
 
-  Vector2 renderMove(Move m);
-  Vector2 renderClose();
-  Vector2 renderLine(Line l);
-  Vector2 renderCubic(CubicBezier c);
-  Vector2 renderQuad(QuadraticBezier q);
-  Vector2 renderArc(Arc a);
+  void renderMove(Move m);
+  void renderClose();
+  void renderLine(Line l);
+  void renderCubic(CubicBezier c);
+  void renderQuad(QuadraticBezier q);
+  void renderArc(Arc a);
 }

@@ -1,0 +1,32 @@
+import 'package:flutter/material.dart';
+
+bool lerpBool(bool a, bool b, double t) {
+  if (a == null && b == null) return null;
+  if (t <= 0.5) {
+    return a;
+  } else {
+    return b;
+  }
+}
+
+/// Linearly interpolate between two numbers.
+double lerpDouble(num a, num b, double t) {
+  if (a == null && b == null) return null;
+  a ??= 0.0;
+  b ??= 0.0;
+  return a + (b - a) * t;
+}
+
+class {name} extends CustomPainter {
+  {name}({this.scale = 1.0, this.t = 0.0}) : assert(scale != null && t != null);
+  final double scale;
+  final double t;
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()..color = Color({color});
+{commands}
+  }
+    
+  @override
+  bool shouldRepaint({name} oldDelegate) => scale != oldDelegate.scale;
+}

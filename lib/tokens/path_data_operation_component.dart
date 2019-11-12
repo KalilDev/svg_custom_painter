@@ -49,10 +49,16 @@ class NumberComponent extends PathComponent {
       n.numberRepresentation
           .forEach((int i) => components.add(IntComponent(i)));
     }
+    if (n is NegativeNumberComponent) {
+      final first = components.first;
+      final neg = first is DoubleComponent ? DoubleComponent(-first.d) : first is IntComponent ? IntComponent(-first._i) : null;
+      components..removeAt(0)..insert(0, neg);
+    }
     return components;
   }
 
   operator +(dynamic other) {
+    print(other.toString());
     stringRepresentation = stringRepresentation + other.toString();
     if (other == ',' || other == '.') {
       if (other == '.') {
@@ -73,6 +79,8 @@ class NumberComponent extends PathComponent {
     }
   }
 }
+
+class NegativeNumberComponent extends NumberComponent {}
 
 class DoubleComponent extends PathComponent {
   DoubleComponent(this.d);
