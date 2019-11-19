@@ -13,35 +13,23 @@ class CustomPainterCodeGenerator extends RenderingNode {
   ];
   final PathData data;
   void renderMove(Move m) {
-    currentCommands.add("..moveTo(scale * ${m.point.x}, scale * ${m.point.y})");
-    currentPos = m.point;
-    lastControlPoint = null;
+    currentCommands.add("..moveTo(scale * ${m.x}, scale * ${m.y})");
   }
   void renderClose() {
     currentCommands.add("..close();");
     currentCommands.add("canvas.drawPath(path, paint);");
-    currentPos = null;
-    lastControlPoint = null;
   }
   void renderLine(Line l) {
-    currentCommands.add("..lineTo(scale * ${l.point.x}, scale * ${l.point.y});");
-    currentPos = l.point;
-    lastControlPoint = null;
+    currentCommands.add("..lineTo(scale * ${l.x}, scale * ${l.y});");
   }
   void renderCubic(CubicBezier c) {
-    currentCommands.add("..cubicTo(scale * ${c.control1.x}, scale * ${c.control1.y}, scale * ${c.control2.x}, scale * ${c.control2.y}, scale * ${c.point.x}, scale * ${c.point.y})");
-    currentPos = c.point;
-    lastControlPoint = c.control2;
+    currentCommands.add("..cubicTo(scale * ${c.x1}, scale * ${c.y1}, scale * ${c.x2}, scale * ${c.y2}, scale * ${c.x}, scale * ${c.y})");
   }
   void renderQuad(QuadraticBezier q) {
-    currentCommands.add("..quadraticBezierTo(scale * ${q.control.x}, scale * ${q.control.y}, scale * ${q.point.x}, scale * ${q.point.y})");
-    currentPos = q.point;
-    lastControlPoint = q.control;
+    currentCommands.add("..quadraticBezierTo(scale * ${q.x1}, scale * ${q.y1}, scale * ${q.x}, scale * ${q.y})");
   }
   void renderArc(Arc a) {
-    currentCommands.add("..arcToPoint(Offset(scale * ${a.point.x},scale * ${a.point.y}),rotation: ${(a.rotation/180)*pi},largeArc: ${a.largeArcFlag},clockwise: ${a.sweepFlag})");
-    currentPos = a.point;
-    lastControlPoint = null;
+    currentCommands.add("..arcToPoint(Offset(scale * ${a.x},scale * ${a.y}),rotation: ${(a.rotation/180)*pi},largeArc: ${a.largeArcFlag},clockwise: ${a.sweepFlag})");
   }
 
   String getCommands() {

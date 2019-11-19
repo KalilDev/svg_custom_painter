@@ -5,13 +5,17 @@ import 'package:svg_custom_painter/tokens/path_data.dart';
 PathOperation convertToOperationNew(String op, List<double> computed) {
   switch (charTypeMap[op.toLowerCase()]) {
     case Move:
-      return Move(alias: op, start: Vector2(computed[0], computed[1]));
+      return Move(alias: op,
+          x: computed[0],
+          y: computed[1]);
       break;
     case Close:
       return Close();
       break;
     case Line:
-      return Line(alias: op, point: Vector2(computed[0], computed[1]));
+      return Line(alias: op,
+          x: computed[0],
+          y: computed[1]);
       break;
     case HorizontalLine:
       return HorizontalLine(alias: op, x: computed[0]);
@@ -22,34 +26,43 @@ PathOperation convertToOperationNew(String op, List<double> computed) {
     case CubicBezier:
       return CubicBezier(
           alias: op,
-          control1: Vector2(computed[0], computed[1]),
-          control2: Vector2(computed[2], computed[3]),
-          end: Vector2(computed[4], computed[5]));
+          x1: computed[0],
+          y1: computed[1],
+          x2: computed[2],
+          y2: computed[3],
+          x: computed[4],
+          y: computed[5]);
       break;
     case SmoothCubicBezier:
       return SmoothCubicBezier(
           alias: op,
-          control2: Vector2(computed[0], computed[1]),
-          end: Vector2(computed[2], computed[3]));
+          x2: computed[0],
+          y2: computed[1],
+          x: computed[2],
+          y: computed[3]);
       break;
     case QuadraticBezier:
       return QuadraticBezier(
           alias: op,
-          control: Vector2(computed[0], computed[1]),
-          end: Vector2(computed[2], computed[3]));
+          x1: computed[0],
+          y1: computed[1],
+          x: computed[2],
+          y: computed[3]);
       break;
     case SmoothQuadraticBezier:
       return SmoothQuadraticBezier(
-          alias: op, end: Vector2(computed[0], computed[1]));
+          alias: op, x: computed[0], y: computed[1]);
       break;
     case Arc:
       return Arc(
           alias: op,
-          radius: Vector2(computed[0], computed[1]),
+          rx: computed[0],
+          ry: computed[1],
           rotation: computed[2],
           largeArcFlag: computed[3] == 1,
           sweepFlag: computed[4] == 1,
-          end: Vector2(computed[5], computed[6]));
+          x: computed[5],
+          y: computed[6],);
       break;
   }
 }

@@ -4,7 +4,6 @@ import 'package:svg_custom_painter/tokenizers/path_data_parser.dart';
 import 'package:svg_custom_painter/tokens/path_data.dart';
 import 'package:svg_custom_painter/tokens/path_data_operations.dart';
 import 'package:svg_custom_painter/rendering/custom_painter_generator.dart';
-import 'package:svg_custom_painter/rendering/custom_painter_lerp_generator.dart';
 import 'package:vector_math/vector_math_64.dart';
 benchmark(String pathData, String desc) async {
     for (int h = 0; h < 12; h++) {

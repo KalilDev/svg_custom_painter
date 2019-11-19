@@ -1,36 +1,44 @@
-import '../tokens/path_data_operations.dart';
-import 'package:vector_math/vector_math_64.dart';
+import 'package:svg_custom_painter/tokens/path_data.dart';
 
-Vector2 reflectControlPoint(Vector2 controlPoint,Vector2 currentPos) {
-  final Vector2 relC = controlPoint; // Relative vector for controlPoint
-  final bool isVert = relC.x > 0; // x axis reflection
-  final Vector2 relativeC1 = isVert ? Vector2(- relC.x,relC.y) : Vector2(relC.x, -relC.y);
-  return currentPos + relativeC1;
+import '../tokens/path_data_operations.dart';
+
+List<num> reflectControlPoint(num x1,y1, num x,y) {
+  final bool isVert = x1 > 0; // x axis reflection
+  final num relX = isVert ? - x1 : x1;
+  final num relY = isVert ? y1 : -y1;
+  return [x+relX,y+relY];
 }
 
 abstract class RenderingNode {
-  Vector2 currentPos;
-  Vector2 lastControlPoint;
+  num cx,cy; // Current coordinates
+  num c1x,c1y; // Last control points
   void renderOp(PathOperation op) {
-    print(op.runtimeType);
+    cx = op.x;
+    cy = op.y;
     switch (op.runtimeType) {
-      case Move: renderMove(op);break;
-      case Close: renderClose();break;
-      case Line: renderLine(op);break;
-      case CubicBezier: renderCubic(op);break;
-      case SmoothCubicBezier: renderCubic(calcSmoothCubic(op));break;
-      case QuadraticBezier: renderQuad(op);break;
-      case SmoothQuadraticBezier: renderQuad(calcSmoothQuad(op));break;
-      case Arc: renderArc(op);break;
+      case Move: renderMove(op); c1x = null; c1y = null;break;
+      case Close: renderClose(); c1x = null; c1y = null;break;
+      case Line: renderLine(op); c1x = null; c1y = null;break;
+      case CubicBezier: renderCubic(op); c1x = (op as CubicBezier).x2; c1y = (op as CubicBezier).y2;break;
+      case SmoothCubicBezier: renderCubic(_calcSmoothCubic(op));break; // c1x and c1y on calcSmoothCubic
+      case QuadraticBezier: renderQuad(op); c1x = (op as QuadraticBezier).x1; c1y = (op as QuadraticBezier).y1;break;
+      case SmoothQuadraticBezier: renderQuad(_calcSmoothQuad(op));break; // c1x and c1y on calcSmoothQuad
+      case Arc: renderArc(op); c1x = null; c1y = null;break;
     }
   }
 
-  CubicBezier calcSmoothCubic(SmoothCubicBezier s) {
-  return CubicBezier(alias: s.alias, control1: reflectControlPoint(s.control2, currentPos),control2: s.control2, end: s.point);
+  CubicBezier _calcSmoothCubic(SmoothCubicBezier s) { // Depends on the internal state, otherwise the user would have to reimplement c1x and c1y everytime
+  final List<num> calc = reflectControlPoint(s.x2,s.y2, cx,cy);
+  c1x = s.x2;
+  c1y = s.y2;
+  return CubicBezier(alias: s.alias, x1: calc[0],y1: calc[1],x2: s.x2,y2:s.x2, x: s.x,y:s.y);
   }
 
-  QuadraticBezier calcSmoothQuad(SmoothQuadraticBezier s) {
-  return QuadraticBezier(alias: s.alias,end: s.point,control: reflectControlPoint(lastControlPoint, currentPos));
+  QuadraticBezier _calcSmoothQuad(SmoothQuadraticBezier s) { // Same as above
+  final List<num> calc = reflectControlPoint(c1x,c1y, cx,cy);
+  c1x = calc[0];
+  c1y = calc[1];
+  return QuadraticBezier(alias: s.alias, x1: calc[0],y1: calc[1], x: s.x,y:s.y);
   }
 
   void renderMove(Move m);
