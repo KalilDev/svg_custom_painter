@@ -4,6 +4,7 @@ import 'package:svg_custom_painter/tokenizers/path_data_parser.dart';
 import 'package:svg_custom_painter/tokens/path_data.dart';
 import 'package:svg_custom_painter/tokens/path_data_operations.dart';
 import 'package:svg_custom_painter/rendering/custom_painter_generator.dart';
+import 'package:svg_custom_painter/rendering/static_code_generator.dart';
 import 'package:vector_math/vector_math_64.dart';
 benchmark(String pathData, String desc) async {
     for (int h = 0; h < 12; h++) {
@@ -32,5 +33,7 @@ final PathParser parser1 = PathParser("M 31.767 0.099 C 30.797 0.268 29.718 0.59
     microseconds += timer.elapsedMicroseconds;
     print(timer.elapsedMicroseconds);
   }
+  final StaticCodeGenerator gen = StaticCodeGenerator();
+  print(gen.getOps(parser1.pathData));
   print('avg lerp: '+(microseconds/100).toString());  
 }
