@@ -1,64 +1,50 @@
 import 'package:svg_custom_painter/tokens/path_data_operations.dart';
-import 'package:svg_custom_painter/tokens/path_data_operation_component.dart';
 import 'package:vector_math/vector_math_64.dart';
 import 'package:svg_custom_painter/tokens/path_data.dart';
 
-PathOperation convertToOperation(List<PathComponent> pcs) {
-  final List<num> computed = [];
-  TypeComponent type;
-  pcs.forEach((PathComponent c) {
-    if (c is TypeComponent) type = c;
-    if (c is NumberComponent)
-      computed.addAll(NumberComponent.compute(c).map((PathComponent c) =>
-          c is IntComponent ? c.i : c is DoubleComponent ? c.d : null));
-  });
-  final int argCount = typeArgCountMap[type.t];
-  if (computed.length != argCount) {
-    //fuck, this is ambiguous, throw for now
-    throw TypeError();
-  }
-  switch (type.t) {
+PathOperation convertToOperationNew(String op, List<double> computed) {
+  switch (charTypeMap[op.toLowerCase()]) {
     case Move:
-      return Move(alias: type.char, start: Vector2(computed[0], computed[1]));
+      return Move(alias: op, start: Vector2(computed[0], computed[1]));
       break;
     case Close:
       return Close();
       break;
     case Line:
-      return Line(alias: type.char, point: Vector2(computed[0], computed[1]));
+      return Line(alias: op, point: Vector2(computed[0], computed[1]));
       break;
     case HorizontalLine:
-      return HorizontalLine(alias: type.char, x: computed[0]);
+      return HorizontalLine(alias: op, x: computed[0]);
       break;
     case VerticalLine:
-      return VerticalLine(alias: type.char, y: computed[0]);
+      return VerticalLine(alias: op, y: computed[0]);
       break;
     case CubicBezier:
       return CubicBezier(
-          alias: type.char,
+          alias: op,
           control1: Vector2(computed[0], computed[1]),
           control2: Vector2(computed[2], computed[3]),
           end: Vector2(computed[4], computed[5]));
       break;
     case SmoothCubicBezier:
       return SmoothCubicBezier(
-          alias: type.char,
+          alias: op,
           control2: Vector2(computed[0], computed[1]),
           end: Vector2(computed[2], computed[3]));
       break;
     case QuadraticBezier:
       return QuadraticBezier(
-          alias: type.char,
+          alias: op,
           control: Vector2(computed[0], computed[1]),
           end: Vector2(computed[2], computed[3]));
       break;
     case SmoothQuadraticBezier:
       return SmoothQuadraticBezier(
-          alias: type.char, end: Vector2(computed[0], computed[1]));
+          alias: op, end: Vector2(computed[0], computed[1]));
       break;
     case Arc:
       return Arc(
-          alias: type.char,
+          alias: op,
           radius: Vector2(computed[0], computed[1]),
           rotation: computed[2],
           largeArcFlag: computed[3] == 1,
@@ -67,62 +53,110 @@ PathOperation convertToOperation(List<PathComponent> pcs) {
       break;
   }
 }
+int getAlgarism(int c) {
+  switch (c) {
+    case 48: return 0;
+    case 49: return 1;
+    case 50: return 2;
+    case 51: return 3;
+    case 52: return 4;
+    case 53: return 5;
+    case 54: return 6;
+    case 55: return 7;
+    case 56: return 8;
+    case 57: return 9;
+    default: return null;
+  }
+}
+
+bool isDecimalSeparator(int c) => (c == 44 || c == 46); // ',' or '.'
+bool isUnambiguousSeparator(int c) => c == 32; // ' '
+bool isSubtractionOperator(int c) => c == 45; // '-'
 
 class PathParser {
   PathParser(this.rawPathData);
   final String rawPathData;
   PathData pathData;
-  Future<PathData> parse() async {
-    //May take long
-    return Future<PathData>.microtask(() {
+  PathData parse() {
+    // This parses only WELL FORMED paths.
+    // On the form C double double double....
+    // With spaces as separators, and commas or dots as separators
+    // for the decimal and integer parts
       final List<PathOperation> operations = [];
-      List<PathComponent> currentOpBuffer;
+      String opCode;
+      int intPart;
+      int decPart;
+      int carriedDivision = 1; // Will be used because otherwise 0 would be ignored
+      bool isNeg = false;
+      int remainingArgs;
+      List<double> numbers = [];
+      final Iterator iter = rawPathData.codeUnits.iterator;
+      while (iter.moveNext()) {
+        final int c = iter.current;
 
-      for (int i = 0; i < rawPathData.length; i++) {
-        if (i == rawPathData.length - 1) {
-          print('end');
+        // Deal with subtraction first
+        if (isSubtractionOperator(c)) {
+          isNeg = true;
+          continue;
         }
-        final String char = rawPathData[i];
-        try {
-          final int number = int.parse(char);
-          final PathComponent lastComponent =
-              currentOpBuffer[currentOpBuffer.length - 1];
-          if (lastComponent is NumberComponent) {
-            lastComponent + number;
+
+        // Deal with decimal operator
+        if (isDecimalSeparator(c)) {
+          decPart = 0;
+          continue;
+        }
+
+        // Deal with an finished num
+        if (isUnambiguousSeparator(c)) {
+          if (intPart == null && decPart == null)
+            continue; // This was before any number, just skip.
+          if (decPart != null) {
+            numbers.add(isNeg ? intPart + (decPart/carriedDivision) : -intPart + (decPart/carriedDivision));
+            decPart = null;
+            carriedDivision = 1;
           } else {
-            final NumberComponent newComponent = NumberComponent();
-            newComponent + number;
-            currentOpBuffer.add(newComponent);
+            numbers.add(isNeg ? -intPart.toDouble() : intPart.toDouble());
           }
-        } on FormatException {
-          // Not an int
-          if (char == ',' || char == '.') {
-            // This is an special case
-            final PathComponent lastComponent =
-                currentOpBuffer[currentOpBuffer.length - 1];
-            if (lastComponent is NumberComponent) {
-              lastComponent + char;
-            } else {
-              currentOpBuffer.add(UnambiguousSeparatorComponent());
-            }
-            continue;
-          }
-          if (char == ' ') {
-            currentOpBuffer?.add(UnambiguousSeparatorComponent());
-            continue;
-          }
-          if (charTypeMap.containsKey(char.toLowerCase())) {
-            if (currentOpBuffer != null) {
-              operations.add(convertToOperation(currentOpBuffer));
-            }
-            currentOpBuffer = [TypeComponent(char)];
-          }
+          intPart = null;
+          isNeg = false;
+          continue;
         }
-      }
-      if (currentOpBuffer != null)
-        operations.add(convertToOperation(currentOpBuffer));
+
+        // Otherwise, assume this is an algarism, else it MUST be a command
+        final int alg = getAlgarism(c);
+        if (alg != null) {
+          if (decPart != null) {
+            // This algarism is part of the decimal part
+              carriedDivision *= 10;
+              decPart = decPart *10 + alg;
+          } else {
+            intPart ??= 0;
+            intPart = intPart*10 +alg;
+          }
+          continue;
+        }
+
+        final String op = String.fromCharCode(c);
+        final bool isValidOp = charTypeMap.containsKey(op.toLowerCase());
+        if (isValidOp) {
+          // Finish the previous op
+          if (opCode != null) {
+            if (remainingArgs != numbers.length) {
+              operations.add(Close());
+              break;
+            }
+            operations.add(convertToOperationNew(opCode, numbers));
+          }
+          // Start a new op
+          opCode = op;
+          intPart = null;
+          decPart = null;
+          carriedDivision = 1;
+          isNeg = false;
+          remainingArgs = charArgCountMap[opCode.toLowerCase()];
+          numbers = [];
+        }}
       pathData = PathData(operations);
       return pathData;
-    });
   }
 }

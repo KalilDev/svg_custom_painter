@@ -13,7 +13,18 @@ const Map<String, Type> charTypeMap = {
   't': SmoothQuadraticBezier,
   'a': Arc
 };
-
+const Map<String, int> charArgCountMap = {
+  'm': 2,
+  'z': 0,
+  'l': 2,
+  'h': 1,
+  'v': 1,
+  'c': 6,
+  's': 4,
+  'q': 4,
+  't': 2,
+  'a': 7
+};
 const Map<Type, int> typeArgCountMap = {
   Move: 2,
   Close: 0,

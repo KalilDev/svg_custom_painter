@@ -8,8 +8,6 @@ class PathData {
     assert(a != null);
     assert(b != null);
     assert(t != null);
-    print(a.operations.length);
-    print(b.operations.length);
     assert(a.operations.length == b.operations.length);
     List<PathOperation> lerp = [];
     for (int i = 0; i < a.operations.length; i++) {
