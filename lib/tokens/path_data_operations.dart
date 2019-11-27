@@ -42,6 +42,9 @@ abstract class PathOperation {
   final num x, y;
   final String alias;
 
+  @override
+  String toString() => alias + ' ' + x.toString() + ' ' + y.toString();
+
   bool get isAbsolute => alias.toUpperCase() == alias;
 }
 
@@ -63,6 +66,11 @@ class Move extends PathOperation {
 }
 
 class Close extends PathOperation {
+  Close() : super(alias: "Z");
+
+  @override
+  String toString() => alias;
+
   static Close lerp(Close a, Close b, double t) {
     assert(a != null);
     assert(b != null);
@@ -95,6 +103,9 @@ class HorizontalLine extends Line {
     num x,
   }) : super(alias: alias, x: x, y: 0);
 
+  @override
+  String toString() => alias + ' ' + x.toString();
+
   static HorizontalLine lerp(VerticalLine a, VerticalLine b, double t) {
     assert(a != null);
     assert(b != null);
@@ -110,6 +121,9 @@ class VerticalLine extends Line {
     String alias,
     num y,
   }) : super(alias: alias, x: 0, y: y);
+
+  @override
+  String toString() => alias + ' ' + y.toString();
 
   static VerticalLine lerp(VerticalLine a, VerticalLine b, double t) {
     assert(a != null);
@@ -132,6 +146,9 @@ class CubicBezier extends PathOperation {
 
   final num x1, y1;
   final num x2, y2;
+
+  @override
+  String toString() => alias + ' ' + x1.toString() + ' ' + y1.toString() + ' ' + x2.toString() + ' ' + y2.toString() +' ' + x.toString() + ' ' + y.toString();
 
   static CubicBezier lerp(CubicBezier a, CubicBezier b, double t) {
     assert(a != null);
@@ -159,6 +176,9 @@ class SmoothCubicBezier extends PathOperation {
 
   final num x2, y2;
 
+  @override
+  String toString() => alias + ' ' + x2.toString() + ' ' + y2.toString() + ' ' + x.toString() + ' ' + y.toString();
+
   static SmoothCubicBezier lerp(
       SmoothCubicBezier a, SmoothCubicBezier b, double t) {
     assert(a != null);
@@ -183,6 +203,9 @@ class QuadraticBezier extends PathOperation {
   }) : super(alias: alias, x: x, y: y);
 
   final num x1, y1;
+
+  @override
+  String toString() => alias + ' ' + x1.toString() + ' ' + y1.toString() + ' ' + x.toString() + ' ' + y.toString();
 
   static QuadraticBezier lerp(QuadraticBezier a, QuadraticBezier b, double t) {
     assert(a != null);
@@ -232,6 +255,9 @@ class Arc extends PathOperation {
   final double rotation; // Degrees
   final bool largeArcFlag;
   final bool sweepFlag;
+
+  @override
+  String toString() => alias + ' ' + rx.toString() + ' ' + ry.toString() + ' ' + rotation.toString() + ' ' + largeArcFlag.toString() +' ' + sweepFlag.toString() + ' ' + x.toString() + ' ' + y.toString();
 
   static Arc lerp(Arc a, Arc b, double t) {
     assert(a != null);
