@@ -124,7 +124,7 @@ class PathParser {
           if (intPart == null && decPart == null)
             continue; // This was before any number, just skip.
           if (decPart != null) {
-            numbers.add(isNeg ? intPart + (decPart/carriedDivision) : -intPart + (decPart/carriedDivision));
+            numbers.add(isNeg ? -(intPart + (decPart/carriedDivision)) : intPart + (decPart/carriedDivision));
             decPart = null;
             carriedDivision = 1;
           } else {
