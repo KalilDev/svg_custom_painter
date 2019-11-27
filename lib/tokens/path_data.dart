@@ -1,8 +1,12 @@
 import 'path_data_operations.dart';
+import 'package:meta/meta.dart';
+import '../utils.dart';
 
 class PathData {
-  const PathData(this.operations);
+  const PathData(this.operations, {@required this.x, @required this.y});
   final List<PathOperation> operations;
+  final double x;
+  final double y;
 
   static PathData lerp(PathData a, PathData b, double t) {
     assert(a != null);
@@ -49,6 +53,6 @@ class PathData {
       }
       lerp.add(result);
     }
-    return PathData(lerp);
+    return PathData(lerp, x: lerpDouble(a.x, b.x, t), y: lerpDouble(a.y, b.y, t));
   }
 }
