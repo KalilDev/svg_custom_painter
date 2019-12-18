@@ -1,3 +1,4 @@
+import 'package:svg_custom_painter/rendering/arc_to_cubic.dart';
 import 'package:svg_custom_painter/tokens/path_data.dart';
 
 import '../tokens/path_data_operations.dart';
@@ -15,16 +16,14 @@ abstract class RenderingNode {
   void renderOp(PathOperation op) {
     cx = op.x;
     cy = op.y;
-    switch (op.runtimeType) {
-      case Move: renderMove(op); c1x = null; c1y = null;break;
-      case Close: renderClose(); c1x = null; c1y = null;break;
-      case Line: renderLine(op); c1x = null; c1y = null;break;
-      case CubicBezier: renderCubic(op); c1x = (op as CubicBezier).x2; c1y = (op as CubicBezier).y2;break;
-      case SmoothCubicBezier: renderCubic(_calcSmoothCubic(op));break; // c1x and c1y on calcSmoothCubic
-      case QuadraticBezier: renderQuad(op); c1x = (op as QuadraticBezier).x1; c1y = (op as QuadraticBezier).y1;break;
-      case SmoothQuadraticBezier: renderQuad(_calcSmoothQuad(op));break; // c1x and c1y on calcSmoothQuad
-      case Arc: renderArc(op); c1x = null; c1y = null;break;
-    }
+    if (op is Move) {renderMove(op); c1x = null; c1y = null;}
+    if (op is Close) {renderClose(); c1x = null; c1y = null;}
+    if (op is Line) {renderLine(op); c1x = null; c1y = null;}
+    if (op is CubicBezier) {renderCubic(op); c1x = op.x2; c1y = op.y2;}
+    if (op is SmoothCubicBezier) {renderCubic(_calcSmoothCubic(op));}
+    if (op is QuadraticBezier) {renderQuad(op); c1x = op.x1; c1y = op.y1;}
+    if (op is SmoothQuadraticBezier) {renderQuad(_calcSmoothQuad(op));}
+    if (op is Arc) {renderArc(op); c1x = null; c1y = null;}
   }
 
   CubicBezier _calcSmoothCubic(SmoothCubicBezier s) { // Depends on the internal state, otherwise the user would have to reimplement c1x and c1y everytime
