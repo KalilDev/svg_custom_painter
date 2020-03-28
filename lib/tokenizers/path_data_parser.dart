@@ -1,5 +1,4 @@
 import 'package:svg_custom_painter/tokens/path_data_operations.dart';
-import 'package:vector_math/vector_math_64.dart';
 import 'package:svg_custom_painter/tokens/path_data.dart';
 
 PathOperation convertToOperationNew(String op, List<double> computed) {
@@ -64,6 +63,7 @@ PathOperation convertToOperationNew(String op, List<double> computed) {
           x: computed[5],
           y: computed[6],);
       break;
+    default: return null;
   }
 }
 int getAlgarism(int c) {

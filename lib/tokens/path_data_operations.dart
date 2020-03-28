@@ -1,4 +1,5 @@
 import '../utils.dart';
+import 'package:meta/meta.dart';
 
 const Map<String, Type> charTypeMap = {
   'm': Move,
@@ -37,19 +38,32 @@ const Map<Type, int> typeArgCountMap = {
   Arc: 7
 };
 
+@immutable
 abstract class PathOperation {
-  PathOperation({this.x, this.y, this.alias});
+  const PathOperation({this.x, this.y, this.alias});
   final num x, y;
   final String alias;
 
   @override
   String toString() => alias + ' ' + x.toString() + ' ' + y.toString();
 
+  @override
+  operator ==(other) {
+    if (runtimeType == other.runtimeType) {
+      final PathOperation o = other as PathOperation;
+      return x == o.x && y == o.y && alias == o.alias;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => x.hashCode + y.hashCode + alias.hashCode + runtimeType.hashCode;
+
   bool get isAbsolute => alias.toUpperCase() == alias;
 }
 
 class Move extends PathOperation {
-  Move({
+  const Move({
     String alias,
     num x, y
   }) : super(alias: alias, x: x, y: y);
@@ -58,7 +72,6 @@ class Move extends PathOperation {
     assert(a != null);
     assert(b != null);
     assert(t != null);
-    assert(a.alias == b.alias);
     return Move(alias: a.alias,
         x: lerpDouble(a.x, b.x, t),
         y: lerpDouble(a.y, b.y, t));
@@ -66,7 +79,7 @@ class Move extends PathOperation {
 }
 
 class Close extends PathOperation {
-  Close() : super(alias: "Z");
+  const Close() : super(alias: "Z");
 
   @override
   String toString() => alias;
@@ -75,13 +88,12 @@ class Close extends PathOperation {
     assert(a != null);
     assert(b != null);
     assert(t != null);
-    assert(a.alias == b.alias);
     return a;
   }
 }
 
 class Line extends PathOperation {
-  Line({
+  const Line({
     String alias,
     num x, y
   }) : super(alias: alias, x: x, y: y);
@@ -90,7 +102,6 @@ class Line extends PathOperation {
     assert(a != null);
     assert(b != null);
     assert(t != null);
-    assert(a.alias == b.alias);
     return Line(alias: a.alias,
         x: lerpDouble(a.x, b.x, t),
         y: lerpDouble(a.y, b.y, t));
@@ -98,7 +109,7 @@ class Line extends PathOperation {
 }
 
 class HorizontalLine extends Line {
-  HorizontalLine({
+  const HorizontalLine({
     String alias,
     num x,
   }) : super(alias: alias, x: x, y: 0);
@@ -110,14 +121,13 @@ class HorizontalLine extends Line {
     assert(a != null);
     assert(b != null);
     assert(t != null);
-    assert(a.alias == b.alias);
     return HorizontalLine(
         alias: a.alias, x: lerpDouble(a.x, b.x, t));
   }
 }
 
 class VerticalLine extends Line {
-  VerticalLine({
+  const VerticalLine({
     String alias,
     num y,
   }) : super(alias: alias, x: 0, y: y);
@@ -129,13 +139,12 @@ class VerticalLine extends Line {
     assert(a != null);
     assert(b != null);
     assert(t != null);
-    assert(a.alias == b.alias);
     return VerticalLine(alias: a.alias, y: lerpDouble(a.y, b.y, t));
   }
 }
 
 class CubicBezier extends PathOperation {
-  CubicBezier({
+  const CubicBezier({
     String alias,
     this.x1,
     this.y1,
@@ -150,11 +159,22 @@ class CubicBezier extends PathOperation {
   @override
   String toString() => alias + ' ' + x1.toString() + ' ' + y1.toString() + ' ' + x2.toString() + ' ' + y2.toString() +' ' + x.toString() + ' ' + y.toString();
 
+  @override
+  operator ==(other) {
+    if (runtimeType == other.runtimeType) {
+      final CubicBezier o = other as CubicBezier;
+      return x == o.x && y == o.y && x1 == o.x1 && y1 == o.y1 && x2 == o.x2 && y2 == o.y2 && alias == o.alias;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => super.hashCode + x1.hashCode + y1.hashCode + x2.hashCode + y2.hashCode;
+
   static CubicBezier lerp(CubicBezier a, CubicBezier b, double t) {
     assert(a != null);
     assert(b != null);
     assert(t != null);
-    assert(a.alias == b.alias);
     return CubicBezier(
         alias: a.alias,
         x1: lerpDouble(a.x1, b.x1, t),
@@ -167,7 +187,7 @@ class CubicBezier extends PathOperation {
 }
 
 class SmoothCubicBezier extends PathOperation {
-  SmoothCubicBezier({
+  const SmoothCubicBezier({
     String alias,
     this.x2,
     this.y2,
@@ -179,12 +199,23 @@ class SmoothCubicBezier extends PathOperation {
   @override
   String toString() => alias + ' ' + x2.toString() + ' ' + y2.toString() + ' ' + x.toString() + ' ' + y.toString();
 
+  @override
+  operator ==(other) {
+    if (runtimeType == other.runtimeType) {
+      final SmoothCubicBezier o = other as SmoothCubicBezier;
+      return x == o.x && y == o.y && x2 == o.x2 && y2 == o.y2 && alias == o.alias;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => super.hashCode + x2.hashCode + y2.hashCode;
+
   static SmoothCubicBezier lerp(
       SmoothCubicBezier a, SmoothCubicBezier b, double t) {
     assert(a != null);
     assert(b != null);
     assert(t != null);
-    assert(a.alias == b.alias);
     return SmoothCubicBezier(
         alias: a.alias,
         x2: lerpDouble(a.x2, b.x2, t),
@@ -195,7 +226,7 @@ class SmoothCubicBezier extends PathOperation {
 }
 
 class QuadraticBezier extends PathOperation {
-  QuadraticBezier({
+  const QuadraticBezier({
     String alias,
     this.x1,
     this.y1,
@@ -207,11 +238,22 @@ class QuadraticBezier extends PathOperation {
   @override
   String toString() => alias + ' ' + x1.toString() + ' ' + y1.toString() + ' ' + x.toString() + ' ' + y.toString();
 
+  @override
+  operator ==(other) {
+    if (runtimeType == other.runtimeType) {
+      final QuadraticBezier o = other as QuadraticBezier;
+      return x == o.x && y == o.y && x1 == o.x1 && y1 == o.y1 && alias == o.alias;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => super.hashCode + x1.hashCode + y1.hashCode;
+
   static QuadraticBezier lerp(QuadraticBezier a, QuadraticBezier b, double t) {
     assert(a != null);
     assert(b != null);
     assert(t != null);
-    assert(a.alias == b.alias);
     return QuadraticBezier(
         alias: a.alias,
         x1: lerpDouble(a.x1, b.x1, t),
@@ -222,7 +264,7 @@ class QuadraticBezier extends PathOperation {
 }
 
 class SmoothQuadraticBezier extends PathOperation {
-  SmoothQuadraticBezier({
+  const SmoothQuadraticBezier({
     String alias,
     num x, y
   }) : super(alias: alias, x: x, y: y);
@@ -232,7 +274,6 @@ class SmoothQuadraticBezier extends PathOperation {
     assert(a != null);
     assert(b != null);
     assert(t != null);
-    assert(a.alias == b.alias);
     return SmoothQuadraticBezier(
         alias: a.alias,
         x: lerpDouble(a.x, b.x, t),
@@ -241,7 +282,7 @@ class SmoothQuadraticBezier extends PathOperation {
 }
 
 class Arc extends PathOperation {
-  Arc({
+  const Arc({
     String alias,
     this.rx,
     this.ry,
@@ -259,11 +300,22 @@ class Arc extends PathOperation {
   @override
   String toString() => alias + ' ' + rx.toString() + ' ' + ry.toString() + ' ' + rotation.toString() + ' ' + largeArcFlag.toString() +' ' + sweepFlag.toString() + ' ' + x.toString() + ' ' + y.toString();
 
+  @override
+  operator ==(other) {
+    if (runtimeType == other.runtimeType) {
+      final Arc o = other as Arc;
+      return x == o.x && y == o.y && rx == o.rx && ry == o.ry && rotation == o.rotation && largeArcFlag == o.largeArcFlag && sweepFlag == o.sweepFlag && alias == o.alias;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => super.hashCode + rx.hashCode + ry.hashCode + rotation.hashCode + largeArcFlag.hashCode + sweepFlag.hashCode;
+
   static Arc lerp(Arc a, Arc b, double t) {
     assert(a != null);
     assert(b != null);
     assert(t != null);
-    assert(a.alias == b.alias);
     return Arc(
         alias: a.alias,
         rx: lerpDouble(a.rx, b.rx, t),
